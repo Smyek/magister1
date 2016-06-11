@@ -32,7 +32,7 @@ class Analyzer:
 
 
     """возвращает хэштеги твита"""
-    def tweet_hashtags(self, tweet):
+    def tweet_hashtags(self, tweet, text_without_hashtags=False):
         print(tweet)
         hashtags = {}
         for compiledRegular, placeType in self.placeTypes:
@@ -44,6 +44,8 @@ class Analyzer:
                 hashtags[hashtag.strip()] = {"placeType": placeType,
                                              "viewType": self.hashtag_view(hashtag),
                                              "lang": self.hashtag_lang(hashtag)}
+        if text_without_hashtags:
+            return hashtags, tweet
         return hashtags
 
 if __name__ == "__main__":
