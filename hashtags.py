@@ -1,5 +1,6 @@
 import re
 import pymorphy2
+import math
 
 class Analyzer:
     """regular expressions"""
@@ -37,7 +38,6 @@ class Analyzer:
 
     """возвращает хэштеги твита"""
     def tweet_hashtags(self, tweet, text_without_hashtags=False):
-        print(tweet)
         hashtags = {}
         for compiledRegular, placeType in self.placeTypes:
             hashtagSearch = compiledRegular.search(tweet)
@@ -53,6 +53,48 @@ class Analyzer:
             return hashtags, tweet
         return hashtags
 
+def word_in_dic(word):
+    # if word in "енгыплджэч": return False
+    if morph.word_is_known(word):
+        return True
+    return False
+
+def _sense_segment(hashtag):
+  def sub(w):
+    if len(w) == 0:
+      yield []
+    for i in range(1, len(w) + 1):
+      for s in sub(w[i:]):
+        if not word_in_dic(''.join(w[:i])):
+            break
+        yield [''.join(w[:i])] + s
+  result = list(sub(hashtag))
+  if word_in_dic(hashtag) or (result == []): result.append([hashtag])
+  print(len(result))
+  return result
+
+def _sense_segment_DELETE(hashtag):
+    print("ONLY SENSIBLE SEGMENTS")
+    segmentations = [[hashtag], ] + _sense_segment(hashtag)
+    for preSegmentChunk in segmentations:
+        for preSegm in preSegmentChunk:
+            if not word_in_dic(preSegm):
+                segmentations.remove(preSegmentChunk)
+                break
+    return segmentations
+
+def maximum_match(hashtag):
+    segments_scores = []
+    for segments in _sense_segment(hashtag):
+        length = len(segments)
+        score = 0.0
+        for word in segments:
+            score += len(word)**2
+        score = math.pow(score, 1/length)
+        segments_scores.append((segments, score))
+    #print(sorted(segments_scores, key=lambda x: x[1], reverse=True))
+    return max(segments_scores, key=lambda x: x[1])[0]
+
 '''унифицирует вид обработанного хэштега'''
 def hashtag_wrapper(hashtag):
     hashtag = hashtag.replace("#", "#[") + "]"
@@ -61,15 +103,28 @@ def hashtag_wrapper(hashtag):
 def camel_segmentation(hashtag):
     camelCasePattern = re.compile("([A-ZА-ЯЁ][a-zа-яё]+)")
     hashtag = camelCasePattern.sub("\\1 ", hashtag)
-    return hashtag_wrapper(hashtag.strip())
+    return hashtag.strip()
 
 def segmentation(hashtag, htDic):
-    refinedHashtag = hashtag
+    print("SEGMENTATION")
+    if len(hashtag) > 30: return hashtag_wrapper("#" + hashtag)
+    refinedHashtag = hashtag[1:]
     if htDic["viewType"] == "CamelCase":
         refinedHashtag = camel_segmentation(hashtag)
+    elif htDic["viewType"] == "regular":
+        print("regular")
+        refinedHashtag = " ".join(maximum_match(hashtag))
+        print(hashtag, refinedHashtag)
 
-    return refinedHashtag
+    return hashtag_wrapper("#" + refinedHashtag)
+
+morph = pymorphy2.MorphAnalyzer()
 
 if __name__ == "__main__":
     an = Analyzer()
+    print(maximum_match('слонматрос'))
+    print(maximum_match('яреальнолюблюлюдейокружающихменя'))
+    # print(maximum_match('попятницамносимчерное'))
+    # for i in "йцукенгшщзхъфывапролджэячсмитьбю":
+    #     print(i, word_in_dic(i))
     print(an.tweet_hashtags("#хехеhashHEAD #hashHEAD2 rrr #hashBODY rrr r rrrr #hashBODY2 #hashBODY3 r rrr rrr rr #hashTAIL #hashTAIL2"))

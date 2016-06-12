@@ -2,6 +2,7 @@ from hashtags import Analyzer, segmentation
 from textprocessor import text_normalize
 from datamanager import data_spewer
 from collections import defaultdict, OrderedDict
+import pymorphy2
 import json
 
 analyzer = Analyzer()
@@ -10,7 +11,11 @@ analyzer = Analyzer()
 Записывает дополнительные поля в словари refinedString, refinedOnlyText
 и к каждому хэштегу поле refinedHT"""
 def post_process(tweetsList):
+    counter = 0
     for tweet in tweetsList:
+        counter += 1
+        print(counter, tweet)
+        if counter%1000 == 0: print(counter)
         '''Проходимся по хэштегам'''
         hashtagsOldNew = {}
         for hashtag in tweet['hashtags']:
@@ -40,17 +45,22 @@ def json_load():
     #print(tweetsList)
     return tweetsList
 
+def get_all_hashtag_type(htType, htCategory='viewType', ):
+    json_all_dump()
+    dic = defaultdict(int)
+    for tweet in json_load():
+        hashtagsDic = tweet['hashtags']
+        for ht in hashtagsDic:
+            if hashtagsDic[ht][htCategory] == htType:
+                dic[ht] += 1
+    dic = OrderedDict(sorted(dic.items(), key=lambda t: t[1]))
+    return dic
+
 if __name__ == "__main__":
-    # json_all_dump()
-    # dic = defaultdict(int)
-    # for tweet in json_load():
-    #     hashtagsDic = tweet['hashtags']
-    #     for ht in hashtagsDic:
-    #         if hashtagsDic[ht]['viewType'] == 'CamelCase':
-    #             print(ht)
-    #             dic[ht] += 1
-    #
-    # dic = OrderedDict(sorted(dic.items(), key=lambda t: t[1]))
+    # dic = get_all_hashtag_type('regular')
+    # print(len('ДИРЕКШИОНЕРФОЛЛОВЬДИРЕКШИОНЕРА'))
+    # #dic = OrderedDict(sorted(dic.items(), key=lambda t: len(t[0]), reverse=True))
     # for i in dic:
     #     print(i, dic[i])
+
     post_process(json_load())
