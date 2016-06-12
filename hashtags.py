@@ -5,6 +5,7 @@ class Analyzer:
     """regular expressions"""
     punctuation = "\"!$%&'()*+,…\-./:;<=>?@[\]^_`{|}~"
     htPattern = "#[^# " + punctuation + "]+"
+
     placeTypes = [(re.compile("^(" + htPattern + " )"), "head"),
                   (re.compile("(" + htPattern + ")$"), "tail"),
                   (re.compile("(" + htPattern + " )"), "body")]
@@ -52,11 +53,22 @@ class Analyzer:
             return hashtags, tweet
         return hashtags
 
-def camel_segmentation(hashtag):
-    pass
+'''унифицирует вид обработанного хэштега'''
+def hashtag_wrapper(hashtag):
+    hashtag = hashtag.replace("#", "#[") + "]"
+    return hashtag
 
-def segmentation(hashtag):
-    pass
+def camel_segmentation(hashtag):
+    camelCasePattern = re.compile("([A-ZА-ЯЁ][a-zа-яё]+)")
+    hashtag = camelCasePattern.sub("\\1 ", hashtag)
+    return hashtag_wrapper(hashtag.strip())
+
+def segmentation(hashtag, htDic):
+    refinedHashtag = hashtag
+    if htDic["viewType"] == "CamelCase":
+        refinedHashtag = camel_segmentation(hashtag)
+
+    return refinedHashtag
 
 if __name__ == "__main__":
     an = Analyzer()
