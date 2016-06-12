@@ -1,13 +1,20 @@
 import re
+from collections import OrderedDict
 
-def delete_hashtags(tweetString, hashtags):
-    hashtags = sorted(hashtags, key=lambda x: len(x), reverse=True)
+def delete_n_swap_hashtags(tweetString, hashtags):
+    hashtags = OrderedDict(sorted(hashtags.items(), key=lambda x: len(x[0]), reverse=True))
+    refinedOnlyText, refinedString = tweetString, tweetString
     for ht in hashtags:
-        tweetString = re.sub(ht, '', tweetString)
-        tweetString = re.sub('\s{2,}', ' ', tweetString)
-    return tweetString
+        refinedString = re.sub(ht, hashtags[ht], refinedString) #заменяем старый хэштег на сегментированный
+        refinedOnlyText = re.sub(ht, '', refinedOnlyText) #удаляем хэштег для строки "только текст"
+        refinedOnlyText = re.sub('\s{2,}', ' ', refinedOnlyText)
+    return refinedOnlyText, refinedString
 
-def text_normalize(originalString, hashtagsList):
-    preRefinedOriginalString = originalString
-    refinedOnlyText = originalString
-    return refinedOnlyText, preRefinedOriginalString
+def spellchecker(originalString, hashtagsOldNewDict):
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    refinedOnlyText, refinedString = delete_n_swap_hashtags(originalString, hashtagsOldNewDict)
+    return refinedOnlyText, refinedString
+
+def text_normalize(originalString, hashtagsOldNewDict):
+    refinedOnlyText, refinedString = spellchecker(originalString, hashtagsOldNewDict)
+    return refinedOnlyText, refinedString
