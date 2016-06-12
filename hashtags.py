@@ -1,10 +1,13 @@
 import re
+import pymorphy2
 
 class Analyzer:
     """regular expressions"""
-    placeTypes = [(re.compile("^(#[^# ]+ )"), "head"),
-                  (re.compile("(#[^# ]+)$"), "tail"),
-                  (re.compile("(#[^# ]+ )"), "body")]
+    punctuation = "\"!$%&'()*+,…\-./:;<=>?@[\]^_`{|}~"
+    htPattern = "#[^# " + punctuation + "]+"
+    placeTypes = [(re.compile("^(" + htPattern + " )"), "head"),
+                  (re.compile("(" + htPattern + ")$"), "tail"),
+                  (re.compile("(" + htPattern + " )"), "body")]
 
     viewTypes = [(re.compile("([A-ZА-ЯЁ][a-zа-яё]+){2,}"), "CamelCase"),
                  (re.compile("([A-Z][А-ЯЁ]+)"), "CAPS")]
@@ -44,9 +47,16 @@ class Analyzer:
                 hashtags[hashtag.strip()] = {"placeType": placeType,
                                              "viewType": self.hashtag_view(hashtag),
                                              "lang": self.hashtag_lang(hashtag)}
+        #возвращаем вторым значением только текст, если нужно
         if text_without_hashtags:
             return hashtags, tweet
         return hashtags
+
+def camel_segmentation(hashtag):
+    pass
+
+def segmentation(hashtag):
+    pass
 
 if __name__ == "__main__":
     an = Analyzer()
