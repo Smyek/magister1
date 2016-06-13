@@ -2,7 +2,7 @@ from hashtags import Analyzer, segmentation
 from textprocessor import text_normalize
 from datamanager import data_spewer
 from collections import defaultdict, OrderedDict
-import pymorphy2
+import testmodule
 import json
 
 analyzer = Analyzer()
@@ -14,8 +14,7 @@ def post_process(tweetsList):
     counter = 0
     for tweet in tweetsList:
         counter += 1
-        print(counter, tweet)
-        if counter%1000 == 0: print(counter)
+        if counter%50 == 0: print(counter, tweet['originalString'])
         '''Проходимся по хэштегам'''
         hashtagsOldNew = {}
         for hashtag in tweet['hashtags']:
@@ -24,7 +23,7 @@ def post_process(tweetsList):
             hashtagsOldNew[hashtag] = htDic['refinedHT']
         '''получаем обработанну строку без хэштегов и со старыми хэштегами (чтобы их заменить на новые в конце hashtagsOldNew = OrderedDict(sorted(dic.items(), key=lambda t: len(t[0])))'''
         tweet['refinedOnlyText'], tweet['refinedString'] = text_normalize(tweet['originalString'], hashtagsOldNew)
-    with open("data/output/db_RESULT.json", "w", encoding="utf-8") as file_output:
+    with open("data/output/db_RESULT_%s.json" % testmodule.timestamp(), "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsList, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 def json_all_dump():
@@ -39,11 +38,11 @@ def json_all_dump():
     with open("data/output/db_output.json", "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsList, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
-def json_load():
-    with open("data/output/db_output.json", "r", encoding="utf-8") as file_in:
+def json_load(start=0, limit=-1, filename="data/output/db_output.json"):
+    with open(filename, "r", encoding="utf-8") as file_in:
         tweetsList = json.loads(file_in.read(), encoding="utf-8")
     #print(tweetsList)
-    return tweetsList
+    return tweetsList[start:limit]
 
 def get_all_hashtag_type(htType, htCategory='viewType', ):
     json_all_dump()
@@ -56,6 +55,7 @@ def get_all_hashtag_type(htType, htCategory='viewType', ):
     dic = OrderedDict(sorted(dic.items(), key=lambda t: t[1]))
     return dic
 
+# @testmodule.timer
 if __name__ == "__main__":
     # dic = get_all_hashtag_type('regular')
     # print(len('ДИРЕКШИОНЕРФОЛЛОВЬДИРЕКШИОНЕРА'))
@@ -63,4 +63,4 @@ if __name__ == "__main__":
     # for i in dic:
     #     print(i, dic[i])
 
-    post_process(json_load())
+    post_process(json_load(0,1000))

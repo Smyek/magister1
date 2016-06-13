@@ -2,9 +2,11 @@ import re
 from dictionary import DICTIONARY
 
 ####regcompilers
-punct = re.compile(u'\W+', re.UNICODE)
-punct_left = re.compile(u'^(\W+)', re.UNICODE)
-punct_right = re.compile(u'(\W+)$', re.UNICODE)
+onlyChars = '((?:\W|[A-Za-z])+)'
+punct = re.compile(onlyChars, re.UNICODE)
+punct_left = re.compile('^%s' % onlyChars, re.UNICODE)
+punct_right = re.compile('%s$' % onlyChars, re.UNICODE)
+engl = re.compile('[A-Za-z]', re.UNICODE)
 
 def edits1(word):
    splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
@@ -28,16 +30,22 @@ def save_punct(word):
     lSearch, rSearch = punct_left.search(word), punct_right.search(word),
     if lSearch: left = lSearch.group(1)
     if rSearch: right = rSearch.group(1)
-    return left, punct.sub("", word), right
+    word = punct.sub("", word)
+    if not word:
+        right = ''
+    return left, word, right
 
 def split_on_words(sentence):
     words = sentence.split(' ')
     correct_words = []
     for word in words:
-        if not word: continue
         left, word, right = save_punct(word)
-        correct_words.append("".join([left, correct(word), right]))
-
+        if not word:
+            if not left or right:
+                continue
+        else:
+            word = correct(word)
+        correct_words.append("".join([left, word, right]))
     return ' '.join(list(correct_words))
 
 if __name__ == '__main__':

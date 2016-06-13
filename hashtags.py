@@ -6,12 +6,12 @@ from dictionary import DICTIONARY
 
 class Analyzer:
     """regular expressions"""
-    punctuation = "\"!$%&'()*+,…\-./:;<=>?@[\]^_`{|}~"
+    punctuation = "\"!$%&'()*+,\…\-./:;<=>?@[\]^_`{|}~"
     htPattern = "#[^# " + punctuation + "]+"
 
     placeTypes = [(re.compile("^(" + htPattern + " )"), "head"),
                   (re.compile("(" + htPattern + ")$"), "tail"),
-                  (re.compile("(" + htPattern + " )"), "body")]
+                  (re.compile("(" + htPattern + " ?)"), "body")]
 
     viewTypes = [(re.compile("([A-ZА-ЯЁ][a-zа-яё]+){2,}"), "CamelCase"),
                  (re.compile("([A-Z][А-ЯЁ]+)"), "CAPS")]
@@ -67,7 +67,6 @@ def _sense_segment(hashtag):
         yield [''.join(w[:i])] + s
   result = list(sub(hashtag))
   if DICTIONARY.word_in_dic(hashtag) or (result == []): result.append([hashtag])
-  print(len(result))
   return result
 
 def _sense_segment_DELETE(hashtag):
@@ -103,23 +102,22 @@ def camel_segmentation(hashtag):
     return hashtag.strip()
 
 def segmentation(hashtag, htDic):
-    print("SEGMENTATION")
+    # print("SEGMENTATION")
     if len(hashtag) > 30: return hashtag_wrapper("#" + hashtag)
-    refinedHashtag = hashtag[1:]
+    hashtag = hashtag[1:]
     if htDic["viewType"] == "CamelCase":
         refinedHashtag = camel_segmentation(hashtag)
     elif htDic["viewType"] == "regular":
-        print("regular")
         refinedHashtag = " ".join(maximum_match(hashtag))
-        print(hashtag, refinedHashtag)
 
     return hashtag_wrapper("#" + refinedHashtag)
 
 if __name__ == "__main__":
     an = Analyzer()
     print(maximum_match('слонматрос'))
-    print(maximum_match('яреальнолюблюлюдейокружающихменя'))
+    #print(maximum_match('яреальнолюблюлюдейокружающихменя'))
     # print(maximum_match('попятницамносимчерное'))
     # for i in "йцукенгшщзхъфывапролджэячсмитьбю":
     #     print(i, word_in_dic(i))
     print(an.tweet_hashtags("#хехеhashHEAD #hashHEAD2 rrr #hashBODY rrr r rrrr #hashBODY2 #hashBODY3 r rrr rrr rr #hashTAIL #hashTAIL2"))
+    print(an.tweet_hashtags("8-ые пришли)) я опять запредельно радуюсь, часы черного цвета это двойная радость^^ #мояпрелесть… http://t.co/oBXeKaU1G1"))

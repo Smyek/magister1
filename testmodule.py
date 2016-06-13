@@ -1,4 +1,4 @@
-import time
+import time, datetime
 
 def timer(function_to_decorate):
         def tmp(*args, **kwargs):
@@ -8,3 +8,9 @@ def timer(function_to_decorate):
             print("Time of function's implementation: %f" % (t_end - t_begin))
             return res
         return tmp
+
+def timestamp():
+    return datetime.datetime.now().strftime("%H.%M.%S-%d.%M.%Y")
+
+if __name__ == "__main__":
+    print(timestamp())
