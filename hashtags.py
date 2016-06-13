@@ -1,6 +1,8 @@
 import re
-import pymorphy2
 import math
+from dictionary import DICTIONARY
+
+
 
 class Analyzer:
     """regular expressions"""
@@ -53,11 +55,6 @@ class Analyzer:
             return hashtags, tweet
         return hashtags
 
-def word_in_dic(word):
-    # if word in "енгыплджэч": return False
-    if morph.word_is_known(word):
-        return True
-    return False
 
 def _sense_segment(hashtag):
   def sub(w):
@@ -65,11 +62,11 @@ def _sense_segment(hashtag):
       yield []
     for i in range(1, len(w) + 1):
       for s in sub(w[i:]):
-        if not word_in_dic(''.join(w[:i])):
+        if not DICTIONARY.word_in_dic(''.join(w[:i])):
             break
         yield [''.join(w[:i])] + s
   result = list(sub(hashtag))
-  if word_in_dic(hashtag) or (result == []): result.append([hashtag])
+  if DICTIONARY.word_in_dic(hashtag) or (result == []): result.append([hashtag])
   print(len(result))
   return result
 
@@ -78,7 +75,7 @@ def _sense_segment_DELETE(hashtag):
     segmentations = [[hashtag], ] + _sense_segment(hashtag)
     for preSegmentChunk in segmentations:
         for preSegm in preSegmentChunk:
-            if not word_in_dic(preSegm):
+            if not DICTIONARY.word_in_dic(preSegm):
                 segmentations.remove(preSegmentChunk)
                 break
     return segmentations
@@ -117,8 +114,6 @@ def segmentation(hashtag, htDic):
         print(hashtag, refinedHashtag)
 
     return hashtag_wrapper("#" + refinedHashtag)
-
-morph = pymorphy2.MorphAnalyzer()
 
 if __name__ == "__main__":
     an = Analyzer()

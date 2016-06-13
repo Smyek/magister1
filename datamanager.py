@@ -18,11 +18,13 @@ def messages_with_hashtags():
         dataListOfLists.append(array)
     return dataListOfLists
 
-def save_csv(filename, dataListOfLists, header=["id", "ttext"]):
+def save_csv(filename, dataListOfLists, header=["id", "ttext"], islist=True):
     with open('data/output/%s.csv' % filename, 'w', encoding="utf-8", newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(header)
         for array in dataListOfLists:
+            if not islist:
+                array = [array, dataListOfLists[array]]
             writer.writerow(array)
 
 def count():
