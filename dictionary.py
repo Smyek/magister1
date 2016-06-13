@@ -10,10 +10,11 @@ class Dictionary:
     _corporaFilenames = ['corpus_1.txt']
 
     def __init__(self):
-        print('Loading Dictionary')
+        print('Loading Dictionary...')
         self.freqDictionary = defaultdict(lambda: 1)
         self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
         self._load_freq_dict()
+        print('Loaded.')
 
     def word_in_dic(self, word):
         # if word in "енгыплджэч": return False
@@ -38,7 +39,6 @@ class Dictionary:
                 self.freqDictionary[token] = int(freq)
 
 DICTIONARY = Dictionary()
-DICTIONARY
 
 if __name__ == "__main__":
     DICTIONARY._make_freq_dict()
