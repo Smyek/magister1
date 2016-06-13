@@ -12,6 +12,7 @@ class Dictionary:
     def __init__(self):
         print('Loading Dictionary')
         self.freqDictionary = defaultdict(lambda: 1)
+        self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
         self._load_freq_dict()
 
     def word_in_dic(self, word):
