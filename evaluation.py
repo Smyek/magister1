@@ -1,5 +1,6 @@
 from datamanager import save_csv#, open_csv
 from main import json_load
+import json
 import re
 punctuation = "\"!$%&'()*+,…\-./:;<=>?@[\]^_`{|}~"
 htPattern = re.compile("#([^# " + punctuation + "]+)")
@@ -14,12 +15,11 @@ def gold_standard_template(cut=1000):
         hashtags = advanced_hashtag_wrapper(" ".join(tweet['hashtags'].keys()))
         refhashtags = " ".join([tweet['hashtags'][ht]['refinedHT'] for ht in tweet['hashtags']])
         originalString = advanced_hashtag_wrapper(tweet['originalString'])
-        csvRow = [originalString, tweet['onlyText'], hashtags] + [tweet['refinedString'], tweet['refinedOnlyText'], refhashtags]*2
+        csvRow = [originalString, tweet['onlyText'], hashtags] + [tweet['refinedString'], tweet['refinedOnlyText'], refhashtags]
         dataListOfLists.append(csvRow)
-    save_csv("gold_template", dataListOfLists[:cut], ["originalString", "onlytext", "hashtags", "refinedString", "refinedOnlyText", "refinedhashtags", "goldString", "goldonlytext", "goldhashtags"])
+    save_csv("gold_template", dataListOfLists[:cut], ["originalString", "onlytext", "hashtags", "goldString", "goldonlytext", "goldhashtags"]) # "refinedString", "refinedOnlyText", "refinedhashtags",
 
 def gold_standard_template(tweetsList):
-    import json
     for tweet in tweetsList:
         for hashtag in tweet['hashtags']:
             htDic = tweet['hashtags'][hashtag]
@@ -32,11 +32,16 @@ def make_gold_evaluation():
     tweets = json_load(filename="data/output/db_RESULT.json")
     tweetsGold = json_load(filename="data/output/gold_template.json")
     print(len(tweets), len(tweetsGold))
-    for i in range(len(tweets)):
-        tweet, tweetGold = tweets[i], tweetsGold[i]
-        print(tweet)
-        print(tweetGold)
-        print()
+    for tweet in tweetsGold:
+        for twRef in tweets:
+            if twRef['tweetID'] == tweet['tweetID']:
+                tweet['refinedString'] = twRef['refinedString']
+                tweet['refinedOnlyText'] = twRef['refinedOnlyText']
+                for hashtag in tweet['hashtags']:
+                    htDic = tweet['hashtags'][hashtag]
+                    htDic['refinedHT'] = twRef['hashtags'][hashtag]['refinedHT']
+    with open("data/output/gold_evaluation.json", "w", encoding="utf-8") as file_output:
+        file_output.write(json.dumps(tweetsGold, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 def evaluation_bad():
     with open('data/output/gold_evaluation.csv', "r", encoding="utf-8") as f:
