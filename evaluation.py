@@ -1,4 +1,5 @@
 from datamanager import save_csv#, open_csv
+from testmodule import timestamp
 from main import json_load
 import json
 import re
@@ -25,8 +26,24 @@ def gold_standard_template(tweetsList):
             htDic = tweet['hashtags'][hashtag]
             htDic['goldHT'] = htDic['refinedHT']
         tweet['goldOnlyText'], tweet['goldString'] = tweet['refinedOnlyText'], tweet['refinedString']
-    with open("data/output/gold_template.json", "w", encoding="utf-8") as file_output:
+    with open("data/output/gold_template_%s.json" % timestamp(), "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsList, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
+
+def gold_standard_template(tweetsList):
+    template = []
+    for tweet in tweetsList:
+        template_tweet = {}
+        template_tweet['tweetID'] = tweet['tweetID']
+        template_tweet['goldOnlyText'], template_tweet['goldString'] = tweet['refinedOnlyText'], tweet['refinedString']
+        template_tweet['originalString'] = tweet['originalString']
+        template_tweet['hashtags'] = {}
+        for hashtag in tweet['hashtags']:
+            htDic = tweet['hashtags'][hashtag]
+            template_tweet['hashtags'][hashtag] = {}
+            template_tweet['hashtags'][hashtag]['goldHT'] = htDic['refinedHT']
+        template.append(template_tweet)
+    with open("data/output/gold_template_%s.json" % timestamp(), "w", encoding="utf-8") as file_output:
+        file_output.write(json.dumps(template, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 def make_gold_evaluation():
     tweets = json_load(filename="data/output/db_RESULT.json")
@@ -95,7 +112,7 @@ def evaluation():
 
     return stats
 if __name__ == "__main__":
-    #tweets = json_load(filename="data/output/db_RESULT.json")
+    tweets = json_load(filename="data/output/db_RESULT.json")
     #gold_standard_template(tweets)
     #evaluation()
     make_gold_evaluation()
