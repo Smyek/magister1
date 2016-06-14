@@ -2,10 +2,31 @@ from hashtags import Analyzer, segmentation
 from textprocessor import text_normalize
 from datamanager import data_spewer
 from collections import defaultdict, OrderedDict
+from dictionary import DICTIONARY
 import testmodule
 import json
 
 analyzer = Analyzer()
+
+"""Доп функция нормализации. Получает на вход json_load().
+-предобрабатывает CamelCase хэштеги
+"""
+def pre_process(tweetsList):
+    """GATHER"""
+    for tweet in tweetsList:
+        for hashtag in tweet['hashtags']:
+            hashtagLower = hashtag.lower()
+            if hashtagLower != hashtag:
+                DICTIONARY._hashtags_forms[hashtagLower][hashtag] = tweet['hashtags'][hashtag]
+
+    """APPLY"""
+    for hasht in DICTIONARY._hashtags_forms:
+        if len(DICTIONARY._hashtags_forms[hasht].keys()) < 2: continue
+        print(hasht)
+        print(DICTIONARY._hashtags_forms[hasht])
+    exit()
+    with open("data/output/db_RESULT_%s.json" % testmodule.timestamp(), "w", encoding="utf-8") as file_output:
+        file_output.write(json.dumps(tweetsList, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 """Основная функция нормализации. Получает на вход json_load().
 Записывает дополнительные поля в словари refinedString, refinedOnlyText
@@ -55,6 +76,17 @@ def get_all_hashtag_type(htType, htCategory='viewType', ):
     dic = OrderedDict(sorted(dic.items(), key=lambda t: t[1]))
     return dic
 
+@testmodule.timer
+def MAIN(start=0, limit=-1):
+    tweets = json_load(start, limit)
+    print("preprocess...")
+    pre_process(tweets)
+    print("preprocess done")
+
+    print("postprocess...")
+    post_process(tweets)
+    print("postprocess done")
+
 # @testmodule.timer
 if __name__ == "__main__":
     # dic = get_all_hashtag_type('regular')
@@ -62,5 +94,4 @@ if __name__ == "__main__":
     # #dic = OrderedDict(sorted(dic.items(), key=lambda t: len(t[0]), reverse=True))
     # for i in dic:
     #     print(i, dic[i])
-
-    post_process(json_load(0,1000))
+    MAIN(0, 500)

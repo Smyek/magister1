@@ -45,11 +45,13 @@ def gold_standard_template(tweetsList):
     with open("data/output/gold_template_%s.json" % timestamp(), "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(template, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
-def make_gold_evaluation():
+def make_gold_evaluation(_last_gold_id="Noid"):
     tweets = json_load(filename="data/output/db_RESULT.json")
     tweetsGold = json_load(filename="data/output/gold_template.json")
+    tweetsResult = []
     print(len(tweets), len(tweetsGold))
     for tweet in tweetsGold:
+        if tweet['tweetID'] == _last_gold_id: break
         for twRef in tweets:
             if twRef['tweetID'] == tweet['tweetID']:
                 tweet['refinedString'] = twRef['refinedString']
@@ -57,8 +59,9 @@ def make_gold_evaluation():
                 for hashtag in tweet['hashtags']:
                     htDic = tweet['hashtags'][hashtag]
                     htDic['refinedHT'] = twRef['hashtags'][hashtag]['refinedHT']
+        tweetsResult.append(tweet)
     with open("data/output/gold_evaluation.json", "w", encoding="utf-8") as file_output:
-        file_output.write(json.dumps(tweetsGold, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
+        file_output.write(json.dumps(tweetsResult, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 def evaluation_bad():
     with open('data/output/gold_evaluation.csv', "r", encoding="utf-8") as f:
@@ -115,4 +118,4 @@ if __name__ == "__main__":
     tweets = json_load(filename="data/output/db_RESULT.json")
     #gold_standard_template(tweets)
     #evaluation()
-    make_gold_evaluation()
+    make_gold_evaluation("408907127663886336")

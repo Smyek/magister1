@@ -7,6 +7,7 @@ punct = re.compile(onlyChars, re.UNICODE)
 punct_left = re.compile('^%s' % onlyChars, re.UNICODE)
 punct_right = re.compile('%s$' % onlyChars, re.UNICODE)
 engl = re.compile('[A-Za-z]', re.UNICODE)
+puncInsideWord = re.compile("([,.:;])([А-Яа-я])")
 
 def edits1(word):
    splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
@@ -35,7 +36,12 @@ def save_punct(word):
         right = ''
     return left, word, right
 
+def sentence_refine(sentence):
+    sentence = puncInsideWord.sub("\\1 \\2", sentence)
+    return sentence
+
 def split_on_words(sentence):
+    sentence = sentence_refine(sentence)
     words = sentence.split(' ')
     correct_words = []
     for word in words:

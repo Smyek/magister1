@@ -14,6 +14,11 @@ class Dictionary:
         self.freqDictionary = defaultdict(lambda: 1)
         self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
         self._load_freq_dict()
+
+        self._hashtags_refined = {}
+        self._words_refined = {}
+
+        self._hashtags_forms = defaultdict(lambda: {})
         print('Loaded.')
 
     def word_in_dic(self, word):

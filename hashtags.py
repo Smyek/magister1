@@ -13,8 +13,8 @@ class Analyzer:
                   (re.compile("(" + htPattern + ")$"), "tail"),
                   (re.compile("(" + htPattern + " ?)"), "body")]
 
-    viewTypes = [(re.compile("([A-ZА-ЯЁ][a-zа-яё]+){2,}"), "CamelCase"),
-                 (re.compile("([A-Z][А-ЯЁ]+)"), "CAPS")]
+    viewTypes = [(re.compile("([A-ZА-ЯЁ]?[A-ZА-ЯЁ][a-zа-яё]+[A-ZА-ЯЁ]?){2,}"), "CamelCase"),
+                 (re.compile("([A-ZА-ЯЁ]+)"), "CAPS")]
 
     hashtagsLang = [(re.compile("[А-Яа-яЁё]"), "ru"),
                     (re.compile("[A-Za-z]"), "en")]
@@ -102,15 +102,19 @@ def camel_segmentation(hashtag):
     return hashtag.strip()
 
 def segmentation(hashtag, htDic):
-    # print("SEGMENTATION")
-    if len(hashtag) > 30: return hashtag_wrapper("#" + hashtag)
-    hashtag = hashtag[1:]
-    if htDic["viewType"] == "CamelCase":
-        refinedHashtag = camel_segmentation(hashtag)
-    elif htDic["viewType"] == "regular":
-        refinedHashtag = " ".join(maximum_match(hashtag))
+    '''если хэщтег уже обрабатывался, добавляем обработанный'''
+    if hashtag in DICTIONARY._hashtags_refined:
+        return DICTIONARY._hashtags_refined[hashtag]
 
-    return hashtag_wrapper("#" + refinedHashtag)
+    refinedHashtag = hashtag[1:]
+    if len(hashtag) > 30: return hashtag_wrapper("#" + refinedHashtag)
+    if htDic["viewType"] == "CamelCase":
+        refinedHashtag = camel_segmentation(refinedHashtag)
+    elif htDic["viewType"] == "regular":
+        refinedHashtag = " ".join(maximum_match(refinedHashtag))
+    refinedHashtag = hashtag_wrapper("#" + refinedHashtag)
+    DICTIONARY._hashtags_refined[hashtag] = refinedHashtag
+    return refinedHashtag
 
 if __name__ == "__main__":
     an = Analyzer()
