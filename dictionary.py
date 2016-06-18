@@ -29,7 +29,6 @@ class Dictionary:
         if lang=="ru" and (self.morph.word_is_known(word)):
             return True
         if lang=="en" and (word in self.engFreqDictionary):
-            print(word, "ENGLISH WORD!")
             return True
         return False
 
