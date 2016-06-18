@@ -56,32 +56,22 @@ class Analyzer:
         return hashtags
 
 
-def _sense_segment(hashtag):
+def _sense_segment(hashtag, lang):
   def sub(w):
     if len(w) == 0:
       yield []
     for i in range(1, len(w) + 1):
       for s in sub(w[i:]):
-        if not DICTIONARY.word_in_dic(''.join(w[:i])):
+        if not DICTIONARY.word_in_dic(''.join(w[:i]), lang):
             break
         yield [''.join(w[:i])] + s
   result = list(sub(hashtag))
-  if DICTIONARY.word_in_dic(hashtag) or (result == []): result.append([hashtag])
+  if DICTIONARY.word_in_dic(hashtag, lang) or (result == []): result.append([hashtag])
   return result
 
-def _sense_segment_DELETE(hashtag):
-    print("ONLY SENSIBLE SEGMENTS")
-    segmentations = [[hashtag], ] + _sense_segment(hashtag)
-    for preSegmentChunk in segmentations:
-        for preSegm in preSegmentChunk:
-            if not DICTIONARY.word_in_dic(preSegm):
-                segmentations.remove(preSegmentChunk)
-                break
-    return segmentations
-
-def maximum_match(hashtag):
+def maximum_match(hashtag, lang="ru"):
     segments_scores = []
-    for segments in _sense_segment(hashtag):
+    for segments in _sense_segment(hashtag, lang):
         length = len(segments)
         score = 0.0
         for word in segments:
@@ -111,7 +101,7 @@ def segmentation(hashtag, htDic):
     if htDic["viewType"] == "CamelCase":
         refinedHashtag = camel_segmentation(refinedHashtag)
     elif htDic["viewType"] == "regular":
-        refinedHashtag = " ".join(maximum_match(refinedHashtag))
+        refinedHashtag = " ".join(maximum_match(refinedHashtag, htDic["lang"]))
     refinedHashtag = hashtag_wrapper("#" + refinedHashtag)
     DICTIONARY._hashtags_refined[hashtag] = refinedHashtag
     return refinedHashtag

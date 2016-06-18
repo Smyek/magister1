@@ -12,8 +12,11 @@ class Dictionary:
     def __init__(self):
         print('Loading Dictionary...')
         self.freqDictionary = defaultdict(lambda: 1)
+        self.engFreqDictionary = defaultdict(lambda: 1)
+        self.engWordsList = []
         self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
         self._load_freq_dict()
+        self._load_english_dict()
 
         self._hashtags_refined = {}
         self._words_refined = {}
@@ -21,9 +24,12 @@ class Dictionary:
         self._hashtags_forms = defaultdict(lambda: {})
         print('Loaded.')
 
-    def word_in_dic(self, word):
+    def word_in_dic(self, word, lang='ru'):
         # if word in "енгыплджэч": return False
-        if self.morph.word_is_known(word):
+        if lang=="ru" and (self.morph.word_is_known(word)):
+            return True
+        if lang=="en" and (word in self.engFreqDictionary):
+            print(word, "ENGLISH WORD!")
             return True
         return False
 
@@ -34,6 +40,13 @@ class Dictionary:
                 for w in tokens:
                     self.freqDictionary[w] += 1
         save_csv(self._freqDictionaryFile, self.freqDictionary, ['token', 'freq'], islist=False)
+
+    def _load_english_dict(self):
+        with open(self._dataPath + "eng_words.txt", "r", encoding="utf-8") as f:
+            tokens = f.read().split('\n')
+            for w in tokens:
+                self.engFreqDictionary[w] += 1
+
 
     def _load_freq_dict(self):
         self.freqDictionary = defaultdict(lambda: 1)
@@ -46,4 +59,5 @@ class Dictionary:
 DICTIONARY = Dictionary()
 
 if __name__ == "__main__":
+    exit()
     DICTIONARY._make_freq_dict()

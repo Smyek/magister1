@@ -24,14 +24,13 @@ def pre_process(tweetsList):
         if len(DICTIONARY._hashtags_forms[hasht].keys()) < 2: continue
         print(hasht)
         print(DICTIONARY._hashtags_forms[hasht])
-    exit()
     with open("data/output/db_RESULT_%s.json" % testmodule.timestamp(), "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsList, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 """Основная функция нормализации. Получает на вход json_load().
 Записывает дополнительные поля в словари refinedString, refinedOnlyText
 и к каждому хэштегу поле refinedHT"""
-def post_process(tweetsList):
+def processing(tweetsList):
     counter = 0
     for tweet in tweetsList:
         counter += 1
@@ -83,8 +82,8 @@ def MAIN(start=0, limit=-1):
     pre_process(tweets)
     print("preprocess done")
 
-    print("postprocess...")
-    post_process(tweets)
+    print("processing...")
+    processing(tweets)
     print("postprocess done")
 
 # @testmodule.timer
@@ -94,4 +93,4 @@ if __name__ == "__main__":
     # #dic = OrderedDict(sorted(dic.items(), key=lambda t: len(t[0]), reverse=True))
     # for i in dic:
     #     print(i, dic[i])
-    MAIN(0, 500)
+    MAIN(0, 200)
