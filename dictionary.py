@@ -1,18 +1,20 @@
 import pymorphy2
 import re
 from collections import defaultdict
-from datamanager import save_csv
+from datamanager import save_csv, json_load
 
 class Dictionary:
     morph = pymorphy2.MorphAnalyzer()
     _dataPath = 'data/'
     _freqDictionaryFile = 'FREQ_DICTIONARY'
+    _freqDictionaryTwitterFile = 'FREQ_DICTIONARY_TWITTER'
     _corporaFilenames = ['corpus_1.txt']
 
     def __init__(self):
         print('Loading Dictionary...')
         self.freqDictionary = defaultdict(lambda: 1)
-        self.engFreqDictionary = defaultdict(lambda: 1)
+        self.freqDictionaryTwitter = defaultdict(lambda: 0)
+        self.engFreqDictionary = defaultdict(lambda: 0)
         self.engWordsList = []
         self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
         self._load_freq_dict()
@@ -39,6 +41,21 @@ class Dictionary:
                 for w in tokens:
                     self.freqDictionary[w] += 1
         save_csv(self._freqDictionaryFile, self.freqDictionary, ['token', 'freq'], islist=False)
+
+    def _make_freq_dict_twitter(self):
+        tweets = json_load()
+        for tweet in tweets:
+            tokens = re.findall('[а-я]+', tweet["onlyText"].lower())
+            for w in tokens:
+                if w in self.freqDictionary:
+                    self.freqDictionary[w] += 1
+                else:
+                    self.freqDictionaryTwitter[w] += 1
+        dKeys = list(self.freqDictionaryTwitter.keys())
+        for w in dKeys:
+            if self.freqDictionaryTwitter[w] == 1:
+                del self.freqDictionaryTwitter[w]
+        save_csv(self._freqDictionaryTwitterFile, self.freqDictionaryTwitter, ['token', 'freq'], islist=False)
 
     def _load_english_dict(self):
         with open(self._dataPath + "eng_words.txt", "r", encoding="utf-8") as f:

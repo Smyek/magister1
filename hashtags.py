@@ -6,7 +6,7 @@ from dictionary import DICTIONARY
 
 class Analyzer:
     """regular expressions"""
-    punctuation = "\"!$%&'()*+,\…\-./:;<=>?@[\]^_`{|}~"
+    punctuation = "\"!$%&'()*+,\…\-./:;<=>?@[\]^`{|}~"
     htPattern = "#[^# " + punctuation + "]+"
 
     placeTypes = [(re.compile("^(" + htPattern + " )"), "head"),
@@ -14,7 +14,7 @@ class Analyzer:
                   (re.compile("(" + htPattern + " ?)"), "body")]
 
     viewTypes = [(re.compile("([A-ZА-ЯЁ]?[A-ZА-ЯЁ][a-zа-яё]+[A-ZА-ЯЁ]?){2,}"), "CamelCase"),
-                 (re.compile("([A-ZА-ЯЁ]+)"), "CAPS")]
+                 (re.compile("(#|^)([A-Z_А-ЯЁ]+)( |$)"), "CAPS")]
 
     hashtagsLang = [(re.compile("[А-Яа-яЁё]"), "ru"),
                     (re.compile("[A-Za-z]"), "en")]
@@ -113,5 +113,6 @@ if __name__ == "__main__":
     # print(maximum_match('попятницамносимчерное'))
     # for i in "йцукенгшщзхъфывапролджэячсмитьбю":
     #     print(i, word_in_dic(i))
+    print(an.hashtag_view("RT"))
     print(an.tweet_hashtags("#хехеhashHEAD #hashHEAD2 rrr #hashBODY rrr r rrrr #hashBODY2 #hashBODY3 r rrr rrr rr #hashTAIL #hashTAIL2"))
     print(an.tweet_hashtags("8-ые пришли)) я опять запредельно радуюсь, часы черного цвета это двойная радость^^ #мояпрелесть… http://t.co/oBXeKaU1G1"))

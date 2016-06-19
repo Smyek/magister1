@@ -1,4 +1,6 @@
 import time, datetime
+from collections import defaultdict
+from datamanager import json_load
 
 def timer(function_to_decorate):
         def tmp(*args, **kwargs):
@@ -11,6 +13,14 @@ def timer(function_to_decorate):
 
 def timestamp():
     return datetime.datetime.now().strftime("%H.%M.%S-%d.%m.%Y")
+
+def count_hashtag_types(hType='viewType'):
+    hashtagDic = defaultdict(lambda: 0)
+    tweets = json_load()
+    for tweet in tweets:
+        for hashtag in tweet['hashtags']:
+            hashtagDic[tweet['hashtags'][hashtag][hType]] += 1
+    return hashtagDic
 
 
 def test_pymorphy_word_known():
@@ -30,3 +40,4 @@ def test_pymorphy_word_known():
 
 if __name__ == "__main__":
     print(timestamp())
+    print(count_hashtag_types())

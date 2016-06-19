@@ -49,36 +49,27 @@ def make_gold_evaluation(_last_gold_id="Noid"):
     tweets = json_load(filename="data/output/db_RESULT.json")
     tweetsGold = json_load(filename="data/output/gold_template.json")
     tweetsResult = []
+    COUNT_GOLD = 1
     print(len(tweets), len(tweetsGold))
     for tweet in tweetsGold:
+        COUNT_GOLD += 1
         if tweet['tweetID'] == _last_gold_id: break
         for twRef in tweets:
             if twRef['tweetID'] == tweet['tweetID']:
                 tweet['refinedString'] = twRef['refinedString']
                 tweet['refinedOnlyText'] = twRef['refinedOnlyText']
+                tweet['onlyText'] = twRef['onlyText']
                 for hashtag in tweet['hashtags']:
                     htDic = tweet['hashtags'][hashtag]
                     htDic['refinedHT'] = twRef['hashtags'][hashtag]['refinedHT']
         tweetsResult.append(tweet)
+    print("Number of gold tweets:", COUNT_GOLD)
     with open("data/output/gold_evaluation.json", "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsResult, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
-def evaluation_bad():
-    with open('data/output/gold_evaluation.csv', "r", encoding="utf-8") as f:
-        next(f)
-        header = ["originalString", "onlytext", "hashtags"]
-        categories = {"originalString": [], "onlytext": [], "hashtags": []}
-        for line in f:
-            print(line)
-            row = line.strip().split('\t')
-            for i in range(3):
-                #print(header[i], row[i], row[i+3], row[i+6])
-                dataType = (row[i], row[i+3], row[i+6])
-                categories[header[i]].append(dataType)
-
 def stat_morph(stats, dataTuple, dtType):
     origin, refined, gold = dataTuple
-    #origin, refined, gold = origin.strip(), refined.strip(), gold.strip()
+    origin, refined, gold = origin.strip(), refined.strip(), gold.strip()
     if origin == gold:
         if origin == refined:
             stats[dtType]["TP"] += 1
@@ -95,9 +86,11 @@ def precision_recall(stats, dtType):
     TP, FP, FN = float(stats[dtType]["TP"]), stats[dtType]["FP"], stats[dtType]["FN"]
     precision = TP/(TP+FP)
     recall = TP/(TP+FN)
+    f1 = 2 * ((precision*recall)/(precision+recall))
     print("precision", precision)
     print("recall", recall)
-    return precision, recall
+    print("f1", f1)
+    return precision, recall, f1
 
 def evaluation():
     tweets = json_load(filename="data/output/gold_evaluation.json")
@@ -118,4 +111,5 @@ if __name__ == "__main__":
     tweets = json_load(filename="data/output/db_RESULT.json")
     #gold_standard_template(tweets)
     #evaluation()
-    make_gold_evaluation("408907127663886336")
+    make_gold_evaluation("408913950848589824")
+    evaluation()

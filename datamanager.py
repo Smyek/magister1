@@ -1,4 +1,4 @@
-import csv, re
+import csv, re, json
 
 amount = 195022
 
@@ -26,6 +26,11 @@ def save_csv(filename, dataListOfLists, header=["id", "ttext"], islist=True):
             if not islist:
                 array = [array, dataListOfLists[array]]
             writer.writerow(array)
+
+def json_load(start=0, limit=-1, filename="data/output/db_output.json"):
+    with open(filename, "r", encoding="utf-8") as file_in:
+        tweetsList = json.loads(file_in.read(), encoding="utf-8")
+    return tweetsList[start:limit]
 
 def count():
     c = 0
