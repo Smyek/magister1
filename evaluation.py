@@ -79,6 +79,7 @@ def stat_morph(stats, dataTuple, dtType, filestream=None):
         if origin == refined:
             stats[dtType]["TP"] += 1
         else:
+
             stats[dtType]["FP"] += 1
     else:
         if gold == refined:
@@ -118,5 +119,5 @@ if __name__ == "__main__":
     tweets = json_load(filename="data/output/db_RESULT.json")
     #gold_standard_template(tweets)
     #evaluation()
-    make_gold_evaluation("408913950848589824")
+    make_gold_evaluation("408917349853827072")
     evaluation()

@@ -2,13 +2,13 @@ import re
 from dictionary import DICTIONARY
 
 ####regcompilers
-onlyChars = '((?:\W|[A-Za-z])+)'
+onlyChars = '((?:\W|[A-Z0-9a-z_])+)'
 punct = re.compile(onlyChars, re.UNICODE)
 punct_left = re.compile('^%s' % onlyChars, re.UNICODE)
 punct_right = re.compile('%s$' % onlyChars, re.UNICODE)
-engl = re.compile('[A-Za-z]', re.UNICODE)
-puncInsideWord = re.compile("([,.:;])([А-Яа-я])")
-puncInsideWord2 = re.compile("\\s([,.:;])")
+engl = re.compile('[A-Z_a-z]', re.UNICODE)
+puncInsideWord = re.compile("([,.:;()])([А-Яа-я])")
+puncInsideWord2 = re.compile("\\s([,.])")
 
 def edits1(word):
    splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
@@ -57,8 +57,7 @@ def split_on_words(sentence):
     return ' '.join(list(correct_words))
 
 if __name__ == '__main__':
-    print(save_punct("!мама,"))
-    sentence = 'Смертность малодых росиян, в последнее- дисятилетие; последовательнно уменьшилась!'
-    sentence2 = 'Дима и Игорь савсем выбелись из ссил с этай сссесией...'
+    sentence = 'Срочно всем альбом Skillet Rise всем в уши)нечто)'
+    sentence2 = 'Кирова позвонила и плачет в трубку,после того как узнала о победе)и как я только понимаю что она мне говорит сквозь слезы!'
     print(split_on_words(sentence))
     print(split_on_words(sentence2))

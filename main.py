@@ -93,4 +93,4 @@ if __name__ == "__main__":
     # #dic = OrderedDict(sorted(dic.items(), key=lambda t: len(t[0]), reverse=True))
     # for i in dic:
     #     print(i, dic[i])
-    MAIN(0, 200)
+    MAIN(0, 100)
