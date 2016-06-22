@@ -67,7 +67,12 @@ def make_gold_evaluation(_last_gold_id="Noid"):
     with open("data/output/gold_evaluation.json", "w", encoding="utf-8") as file_output:
         file_output.write(json.dumps(tweetsResult, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
-def stat_morph(stats, dataTuple, dtType):
+def write_log(filestream, elements):
+    string = "[%s]\tgold\n[%s]\trefined\n\n" % elements
+    filestream.write(string)
+
+def stat_morph(stats, dataTuple, dtType, filestream=None):
+
     origin, refined, gold = dataTuple
     origin, refined, gold = origin.strip(), refined.strip(), gold.strip()
     if origin == gold:
@@ -79,6 +84,7 @@ def stat_morph(stats, dataTuple, dtType):
         if gold == refined:
             stats[dtType]["TN"] += 1
         else:
+            if filestream: write_log(filestream, (gold, refined))
             stats[dtType]["FN"] += 1
     return stats
 
@@ -93,6 +99,7 @@ def precision_recall(stats, dtType):
     return precision, recall, f1
 
 def evaluation():
+    f = open("data/output/eval_log.txt", "w", encoding="utf-8")
     tweets = json_load(filename="data/output/gold_evaluation.json")
     stats = {"originalString": {}, "onlyText": {}, "hashtags": {}}
     for st in stats: stats[st] = {"TP": 0, "FP": 0, "TN": 0, "FN": 0}
@@ -101,11 +108,11 @@ def evaluation():
             htDic = tweet['hashtags'][hashtag]
             stats = stat_morph(stats, (advanced_hashtag_wrapper(hashtag), htDic['refinedHT'], htDic['goldHT']) , "hashtags")
         stats = stat_morph(stats, (advanced_hashtag_wrapper(tweet['originalString']), tweet['refinedString'], tweet['goldString']) , "originalString")
-        stats = stat_morph(stats, (tweet['onlyText'], tweet['refinedOnlyText'], tweet['goldOnlyText']) , "onlyText")
+        stats = stat_morph(stats, (tweet['onlyText'], tweet['refinedOnlyText'], tweet['goldOnlyText']) , "onlyText", filestream=f)
     for cat in stats:
         print(cat, stats[cat])
         precision_recall(stats, cat)
-
+    f.close()
     return stats
 if __name__ == "__main__":
     tweets = json_load(filename="data/output/db_RESULT.json")
