@@ -67,7 +67,7 @@ def sentence_refine(sentence):
 
 def split_on_words(sentence):
     sentence = sentence_refine(sentence)
-    #sentence = sentence_preprocess(sentence)
+    sentence = sentence_preprocess(sentence)
     words = sentence.split(' ')
     correct_words = []
     for word in words:
