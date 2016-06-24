@@ -17,6 +17,7 @@ class Dictionary:
         self.engFreqDictionary = defaultdict(lambda: 0)
         self.engWordsList = []
         self.rusalphabet = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'
+        self.num = re.compile("^([0-9])+$")
         self._load_freq_dict()
         self._load_english_dict()
 
@@ -31,6 +32,8 @@ class Dictionary:
         if lang=="ru" and (self.morph.word_is_known(word)):
             return True
         if lang=="en" and (word in self.engFreqDictionary):
+            return True
+        if self.num.search(word):
             return True
         return False
 

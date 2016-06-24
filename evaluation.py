@@ -108,8 +108,8 @@ def evaluation():
         for hashtag in tweet['hashtags']:
             htDic = tweet['hashtags'][hashtag]
             stats = stat_morph(stats, (advanced_hashtag_wrapper(hashtag), htDic['refinedHT'], htDic['goldHT']) , "hashtags")
-        stats = stat_morph(stats, (advanced_hashtag_wrapper(tweet['originalString']), tweet['refinedString'], tweet['goldString']) , "originalString")
-        stats = stat_morph(stats, (tweet['onlyText'], tweet['refinedOnlyText'], tweet['goldOnlyText']) , "onlyText", filestream=f)
+        stats = stat_morph(stats, (advanced_hashtag_wrapper(tweet['originalString']), tweet['refinedString'], tweet['goldString']) , "originalString", filestream=f)
+        stats = stat_morph(stats, (tweet['onlyText'], tweet['refinedOnlyText'], tweet['goldOnlyText']) , "onlyText")
     for cat in stats:
         print(cat, stats[cat])
         precision_recall(stats, cat)

@@ -9,6 +9,23 @@ punct_right = re.compile('%s$' % onlyChars, re.UNICODE)
 engl = re.compile('[A-Z_a-z]', re.UNICODE)
 puncInsideWord = re.compile("([,.:;()])([А-Яа-я])")
 puncInsideWord2 = re.compile("\\s([,.])")
+multipleLetters = re.compile("([А-Яа-яA-Za-z])\\1{2,}")
+bad_dictionary_raw = {'грит': 'говорит', 'тыщ': 'тысяч', 'иво': 'его', 'чо-то': 'что-то', 'че': 'что',
+'чо': 'что', 'грю': 'говорю', 'оч': 'очень', 'че-то': 'что-то', 'ничо': 'ничего',
+'тыш': 'тысяч', 'терь': 'теперь', 'што': 'что', 'вобще': 'вообще', 'когдато': 'когда-то',
+'както': 'как-то', 'изза': 'из-за', 'шоб': 'чтоб', 'ващще': 'вообще', 'вопщем': 'в общем',
+'ваще': 'вообще', 'вооще': 'вообще', 'ево': 'его', 'седня': 'сегодня', 'можт': 'может',
+'ща': 'сейчас', 'щя': 'сейчас','ессно': 'ествественно', 'чтото': 'что-то', 'тыж': 'ты ж', 'ниче': 'ничего', 'аццки':'адски',
+'ктото': 'кто-то', 'вобщем': 'в общем', 'вообщем': 'в общем', 'ктож': 'кто ж', 'шас': 'сейчас', 'еслиб': 'если б'}
+bad_dictionary = {}
+
+def bad_dictionary_improve():
+    start, end = "(^| |\W)", "($| |\W)"
+    for key in bad_dictionary_raw:
+        keyResult, value = "%s%s%s" % (start, key, end), "%s%s%s" % ("\\1", bad_dictionary_raw[key], "\\2")
+        bad_dictionary[keyResult] = value
+
+bad_dictionary_improve()
 
 def edits1(word):
    splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
@@ -22,6 +39,12 @@ def known_edits2(word):
     return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if DICTIONARY.word_in_dic(e2))
 
 def known(words): return set(w for w in words if DICTIONARY.word_in_dic(w))
+
+def sentence_preprocess(sentence):
+    sentence = multipleLetters.sub("\\1\\1", sentence)
+    for key in bad_dictionary:
+        sentence = re.sub(key, bad_dictionary[key], sentence)
+    return sentence
 
 def correct(word):
     candidates = known([word]) or known(edits1(word)) or known_edits2(word) or [word]
@@ -44,6 +67,7 @@ def sentence_refine(sentence):
 
 def split_on_words(sentence):
     sentence = sentence_refine(sentence)
+    #sentence = sentence_preprocess(sentence)
     words = sentence.split(' ')
     correct_words = []
     for word in words:
@@ -56,8 +80,9 @@ def split_on_words(sentence):
         correct_words.append("".join([left, word, right]))
     return ' '.join(list(correct_words))
 
+
 if __name__ == '__main__':
     sentence = 'Срочно всем альбом Skillet Rise всем в уши)нечто)'
-    sentence2 = 'Кирова позвонила и плачет в трубку,после того как узнала о победе)и как я только понимаю что она мне говорит сквозь слезы!'
+    sentence2 = 'Кирова позвонила и плачет в трубку,после того как узнала о победе)и как ща я только понимаю что она мне говорит сквозь слезы вопщем! седня'
     print(split_on_words(sentence))
     print(split_on_words(sentence2))
